@@ -1,0 +1,5 @@
+package algorithms
+
+object MatchingPursuit {
+
+}
