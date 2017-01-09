@@ -1,5 +1,0 @@
-package algorithms
-
-object MatchingPursuitTest {
-
-}
