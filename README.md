@@ -1,4 +1,4 @@
-## sparsal - Sparse approximation library
+## sparsal - **Spars**e **Ap**proximation **L**ibrary
 
 [![Build Status](https://travis-ci.org/underscorenico/sparsal.svg?branch=master)](https://travis-ci.org/underscorenico/sparsal)
 [![codecov](https://codecov.io/gh/underscorenico/sparsal/branch/master/graph/badge.svg)](https://codecov.io/gh/underscorenico/sparsal)
@@ -6,3 +6,5 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://raw.githubusercontent.com/underscorenico/sparsal/master/LICENSE.txt)
 
 ## Overview
+
+The Sparse Approximation Library aims to provide easy-to-read, modern and maintainable sparse approximation algorithms written in a functional style.
