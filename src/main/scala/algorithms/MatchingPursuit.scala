@@ -4,7 +4,7 @@ import dictionaries.Dictionary
 import utils.Accuracy
 import utils.Util._
 
-class MatchingPursuit[T](val x: Seq[T], val dict: Dictionary[Seq[T]]) {
+class MatchingPursuit[T](val x: Seq[T], val dict: Dictionary[T]) {
 
   /**
     * Compute the inner product of x at iteration i and every atom ω in the dictionary dict
@@ -14,20 +14,22 @@ class MatchingPursuit[T](val x: Seq[T], val dict: Dictionary[Seq[T]]) {
     */
   private def corr(xi: Seq[T])(implicit num: Numeric[T]): Seq[T] = {
 
-    this.dict.Θ map (ω => dot(xi, ω))
+    this.dict.atoms map (ω => dot(xi, ω))
   }
 
   /**
     * Find the most correlated weighted atom ω from the dictionary with x at iteration i (from corr)
     *
     * @param corr The correlation matrix between x at iteration i and every atom ω in the dictionary
-    * @return The best matching weighted atom
+    * @return The best matching weighted atom index and its weight
     */
-  private def bestGuess(corr: Seq[T])(implicit num: Numeric[T]): (T, Seq[T]) = {
+  private def bestGuess(corr: Seq[T])(implicit num: Numeric[T]): (T, Int) = {
 
     import num._
-    val α: T = (corr map (x => abs(x))).reduceLeft(max)
-    (α, this.dict.getAtom(corr.indexOf(α)))
+    val absCorr = corr map abs
+    val α: T = absCorr reduceLeft max
+    val idx = absCorr.indexOf(α)
+    (corr(idx), idx)
   }
 
   /**
@@ -45,27 +47,30 @@ class MatchingPursuit[T](val x: Seq[T], val dict: Dictionary[Seq[T]]) {
   /**
     * Perform one step of the Matching Pursuit algorithm
     *
-    * @param xi The input x at iteration i
+    * @param residual The residual at iteration i
+    * @param until    The object containing the type of the desired accuracy and the level
     * @return The residual at iteration i
     */
-  private def step(xi: Seq[T])(implicit num: Numeric[T]): Seq[T] = {
+  private def step(residual: Seq[T], until: Accuracy[T], acc: List[(T, Int)])(implicit num: Numeric[T]): (List[(T, Int)], Seq[T]) = {
 
-    subtraction(xi, weightAtom(bestGuess(corr(xi))))
+    if (until.estimate(subtraction(x, residual), x)) {
+      (acc, residual)
+    } else {
+      val nextCorr: Seq[T] = this.corr(residual)
+      val nextBestGuess: (T, Int) = this.bestGuess(nextCorr)
+      val nextAcc: List[(T, Int)] = acc.::(nextBestGuess)
+      step(subtraction(residual, weightAtom((nextBestGuess._1, this.dict.atoms(nextBestGuess._2)))), until, nextAcc)
+    }
   }
 
   /**
     * Run the matching pursuit algorithm. The algorithm is run until the desired level of accuracy (or number of iterations) is reached.
     *
-    * @param current The estimated sequence (empty sequence for the first iteration)
-    * @param until   The object containing the type of the desired accuracy and the level
+    * @param until The object containing the type of the desired accuracy and the level
     * @return The residual sequence
     */
-  def run(current: Seq[T], until: Accuracy[T])(implicit num: Numeric[T]): Seq[T] = {
+  def run(until: Accuracy[T])(implicit num: Numeric[T]): (List[(T, Int)], Seq[T]) = {
 
-    if (until.estimate(current, x)) {
-      current
-    } else {
-      run(step(subtraction(x, current)), until)
-    }
+    this.step(x, until, List.empty)
   }
 }
