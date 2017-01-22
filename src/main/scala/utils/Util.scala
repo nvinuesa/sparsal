@@ -15,9 +15,9 @@ object Util {
     * @param f  Function to be applied
     * @return The resulting sequence
     */
-def op[T](as: Seq[T], bs: Seq[T])(f: (T, T) => T): Seq[T] = {
+  def op[T](as: Seq[T], bs: Seq[T])(f: (T, T) => T): Seq[T] = {
 
-    require(as.size == bs.size)
+    require(as.size == bs.size, "Both sequences must have the same length for binary operations.")
     (as zip bs) map {
       Function.tupled(f)
     }

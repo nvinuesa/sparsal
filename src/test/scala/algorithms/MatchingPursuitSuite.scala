@@ -1,16 +1,20 @@
 package algorithms
 
-import dictionaries.Dictionary
+import dictionaries.{Dictionary, Gabor}
 import org.scalatest.FunSuite
-import utils.SNR
+import utils._
+import utils.Util._
 
 class MatchingPursuitSuite extends FunSuite {
 
   test("Matching Pursuit should converge") {
-    val a = new MatchingPursuit[Double](Vector(1, 2, 3), new Dictionary[Seq[Double]](Vector(Vector(1.0 / 3.7417, 2.0 / 3.7417, 3.0 / 3.7417), Vector(1.0 / 1.7321, 1.0 / 1.7321, 1.0 / 1.7321))))
-    val snr =  new SNR[Double](-50.0)
-    val b = a.run(Vector.fill(3){0.0}, snr)
+    val orig = Vector.fill(10)(1.0)
+    val dict = new Gabor(Vector.fill(10)(0.0))
+    val a = new MatchingPursuit[Double](orig, dict)
+    val snr = new SNR[Double](10.0)
+    val b = a.run(snr)
 
-    assert(b.length == 3)
+    assert(b._2.length == 10)
+    assert(snr.estimate(subtraction(orig, b._2), orig))
   }
 }
