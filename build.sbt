@@ -2,7 +2,7 @@ organization := "com.github.underscorenico"
 
 name := "sparsal"
 
-version := "0.1.0"
+version := "0.1.1-SNAPSHOT"
 
 scalaVersion := "2.12.1"
 
