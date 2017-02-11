@@ -1,5 +1,6 @@
 package utils
 
+import scala.collection.parallel.ParSeq
 import scala.math._
 
 /**
@@ -15,7 +16,7 @@ object Util {
     * @param f  Function to be applied
     * @return The resulting sequence
     */
-  def op[T](as: Seq[T], bs: Seq[T])(f: (T, T) => T): Seq[T] = {
+  def op[T](as: ParSeq[T], bs: ParSeq[T])(f: (T, T) => T): ParSeq[T] = {
 
     require(as.size == bs.size, "Both sequences must have the same length for binary operations.")
     (as zip bs) map {
@@ -30,7 +31,7 @@ object Util {
     * @param bs Second sequence
     * @return The dot product
     */
-  def dot[T](as: Seq[T], bs: Seq[T])(implicit num: Numeric[T]): T = {
+  def dot[T](as: ParSeq[T], bs: ParSeq[T])(implicit num: Numeric[T]): T = {
 
     import num._
     op(as, bs)(_ * _).sum
@@ -43,7 +44,7 @@ object Util {
     * @param bs Second sequence
     * @return The addition sequence
     */
-  def addition[T](as: Seq[T], bs: Seq[T])(implicit num: Numeric[T]): Seq[T] = {
+  def addition[T](as: ParSeq[T], bs: ParSeq[T])(implicit num: Numeric[T]): ParSeq[T] = {
 
     import num._
     op(as, bs)(_ + _)
@@ -56,7 +57,7 @@ object Util {
     * @param bs Second sequence
     * @return The subtraction sequence
     */
-  def subtraction[T](as: Seq[T], bs: Seq[T])(implicit num: Numeric[T]): Seq[T] = {
+  def subtraction[T](as: ParSeq[T], bs: ParSeq[T])(implicit num: Numeric[T]): ParSeq[T] = {
 
     import num._
     op(as, bs)(_ - _)
@@ -69,7 +70,7 @@ object Util {
     * @param p  The power p
     * @return The p-norm
     */
-  def pNorm[T](as: Seq[T], p: T)(implicit num: Numeric[T]): T = {
+  def pNorm[T](as: ParSeq[T], p: T)(implicit num: Numeric[T]): T = {
 
     import num._
 

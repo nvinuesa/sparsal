@@ -15,7 +15,7 @@ class MatchingPursuitSuite extends FunSuite {
     val b = a.run(snr)
 
     assert(b._2.length == 10)
-    assert(snr.estimate(subtraction(orig, b._2), orig))
+    assert(snr.estimate(subtraction(orig.par, b._2), orig.par))
   }
 
   test("Sparse decomposition of sine wave") {
@@ -26,7 +26,7 @@ class MatchingPursuitSuite extends FunSuite {
     val b = a.run(snr)
 
     assert(b._2.length == orig.length)
-    assert(snr.estimate(subtraction(orig, b._2), orig))
+    assert(snr.estimate(subtraction(orig.par, b._2), orig.par))
   }
 
   def sine(f: Double, amp: Double, samplef: Double, samples: Int): IndexedSeq[Double] = {

@@ -3,6 +3,8 @@ package dictionaries
 import scala.math._
 import utils.Util._
 
+import scala.collection.parallel.ParSeq
+
 trait Dictionary[T] {
 
   /**
@@ -13,7 +15,7 @@ trait Dictionary[T] {
   /**
     * The dictionary of atoms
     */
-  val atoms: Seq[Seq[T]]
+  val atoms: ParSeq[ParSeq[T]]
 }
 
 /**
@@ -40,15 +42,15 @@ class Gabor(xi: Seq[Double]) extends Dictionary[Double] {
   /**
     * Dyadic sampling of the basis function to generate the dictionary
     */
-  override val atoms: Seq[Seq[Double]] =
+  override val atoms: ParSeq[ParSeq[Double]] =
     for {
-      j: Int <- 1 until floor(log(N) / log(2)).toInt
-      p: Int <- 0 until (N * pow(2, -j + 1)).toInt
-      k: Int <- 0 until pow(2, j + 1).toInt
+      j: Int <- (1 until floor(log(N) / log(2)).toInt).par
+      p: Int <- (0 until (N * pow(2, -j + 1)).toInt).par
+      k: Int <- (0 until pow(2, j + 1).toInt).par
     } yield {
       val helper =
         for {
-          n: Int <- 0 until N
+          n: Int <- (0 until N).par
         } yield {
           basis((p * pow(a, j) * Δu).toInt, (k * pow(a, -j) * Δξ).toInt, pow(a, j).toInt)(n)
         }

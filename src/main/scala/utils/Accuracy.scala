@@ -4,6 +4,8 @@ import scala.math.Numeric
 import scala.math.log10
 import utils.Util._
 
+import scala.collection.parallel.ParSeq
+
 /**
   * Methods for assessing accuracy between estimated and original signals
   */
@@ -16,7 +18,7 @@ trait Accuracy[T] {
     * @param original The original signal as reference
     * @return True if the desired level of accuracy is reached
     */
-  def estimate(current: Seq[T], original: Seq[T])(implicit num: Numeric[T]): Boolean
+  def estimate(current: ParSeq[T], original: ParSeq[T])(implicit num: Numeric[T]): Boolean
 }
 
 /**
@@ -52,7 +54,7 @@ case class SNR[A](level: Double) extends Accuracy[A] {
     * @param original The original signal as reference
     * @return True if the desired level of accuracy is reached
     */
-  override def estimate(current: Seq[A], original: Seq[A])(implicit num: Numeric[A]): Boolean = {
+  override def estimate(current: ParSeq[A], original: ParSeq[A])(implicit num: Numeric[A]): Boolean = {
 
     import num._
     val origSq = dot(original map (x => toDouble(x)), original map (x => toDouble(x)))
@@ -71,5 +73,5 @@ case class MSE[A](level: Double) extends Accuracy[A] {
     * @param original The original signal as reference
     * @return True if the desired level of accuracy is reached
     */
-  override def estimate(current: Seq[A], original: Seq[A])(implicit num: Numeric[A]): Boolean = ???
+  override def estimate(current: ParSeq[A], original: ParSeq[A])(implicit num: Numeric[A]): Boolean = ???
 }
