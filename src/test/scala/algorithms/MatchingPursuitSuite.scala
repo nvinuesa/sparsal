@@ -29,7 +29,7 @@ class MatchingPursuitSuite extends FunSuite {
     assert(snr.estimate(subtraction(orig.par, b._2), orig.par))
   }
 
-  def sine(f: Double, amp: Double, samplef: Double, samples: Int): IndexedSeq[Double] = {
+  def sine(f: Double, amp: Double, samplef: Double, samples: Int): Vector[Double] = {
     val wavePeriod = 1 / f
     val samplePeriod = 1 / samplef
     val dTheta = (samplePeriod / wavePeriod) * 2 * math.Pi
