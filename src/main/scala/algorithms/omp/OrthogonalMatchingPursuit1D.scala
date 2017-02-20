@@ -1,18 +1,19 @@
-package algorithms.mp
+package algorithms.omp
 
 import dictionaries.Dictionary
 import org.apache.commons.math3.analysis.function.Abs
-import org.apache.commons.math3.linear.{ArrayRealVector, RealVector}
+import org.apache.commons.math3.linear._
 import utils.Accuracy
 
-case class MatchingPursuit1D(x: Seq[Double], dict: Dictionary) extends MatchingPursuit[Double] {
+case class OrthogonalMatchingPursuit1D(x: Seq[Double], dict: Dictionary) extends OrthogonalMatchingPursuit[Double] {
 
   private val input: RealVector = new ArrayRealVector(x.toArray)
+  private val dictRows: Int = this.dict.atoms.getColumn(0).length
 
   override def run(until: Accuracy): (List[(Double, Int)], Seq[Double]) = {
 
     /**
-      * Perform one step of the Matching Pursuit algorithm
+      * Perform one step of the Orthogonal Matching Pursuit algorithm
       *
       * @param residual The residual at iteration i
       * @param until    The object containing the type of the desired accuracy and the level
@@ -21,11 +22,11 @@ case class MatchingPursuit1D(x: Seq[Double], dict: Dictionary) extends MatchingP
       */
     def step(residual: RealVector, until: Accuracy, acc: List[(Double, Int)]): (List[(Double, Int)], Seq[Double]) = {
 
-      if (until.estimate(input.subtract(residual), input)) {
+      if (until.estimate(input.subtract(residual), input) || dict.atoms.getRow(0).length <= acc.length) {
         (acc, residual.toArray.toSeq)
       } else {
         // Compute the inner product of x at iteration i and every atom in the dictionary dict
-        val nextCorr: RealVector = this.dict.atoms.transpose().operate(residual).map(new Abs)
+        val nextCorr = this.dict.atoms.transpose().operate(residual).map(new Abs)
         // Find the most correlated weighted atom from the dictionary
         val idx: Int = nextCorr.getMaxIndex
         // Weight the selected atom and normalize
@@ -33,12 +34,17 @@ case class MatchingPursuit1D(x: Seq[Double], dict: Dictionary) extends MatchingP
         val weight: Double = nextCorr.getMaxValue / (norm * norm)
         val nextBestGuess: (Double, Int) = (weight, idx)
         val nextAcc: List[(Double, Int)] = acc.::(nextBestGuess)
-        // Multiply the selected atom by the weight
-        val weightedAtom: RealVector = this.dict.atoms.getColumnVector(nextBestGuess._2).mapMultiply(weight)
-        step(residual.subtract(weightedAtom), until, nextAcc)
-      }
-    }
+        // Get all previously selected atoms
+        val previousAtoms: RealMatrix = this.dict.atoms.getSubMatrix((0 until dictRows).toArray, nextAcc.map(_._2).toArray)
+        // Compute the projections
+        val approximation: RealVector = new QRDecomposition(previousAtoms).getSolver.solve(input)
+        // Compute the new residual
+        val nextResidual: RealVector = input.subtract(previousAtoms.operate(approximation))
 
+        step(nextResidual, until, nextAcc)
+      }
+
+    }
     step(input, until, List.empty)
   }
 }

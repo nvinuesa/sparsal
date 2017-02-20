@@ -8,6 +8,7 @@ scalaVersion := "2.12.1"
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
+  "org.mockito" % "mockito-all" % "1.10.19",
   "org.apache.commons" % "commons-math3" % "3.6.1"
 )
 
@@ -18,7 +19,7 @@ publishTo := {
   if (isSnapshot.value)
     Some("snapshots" at nexus + "content/repositories/snapshots")
   else
-    Some("releases"  at nexus + "service/local/staging/deploy/maven2")
+    Some("releases" at nexus + "service/local/staging/deploy/maven2")
 }
 
 publishArtifact in Test := false
@@ -26,7 +27,7 @@ publishArtifact in Test := false
 pomIncludeRepository := { _ => false }
 
 pomExtra := (
-    <url>https://github.com/underscorenico/sparsal</url>
+  <url>https://github.com/underscorenico/sparsal</url>
     <licenses>
       <license>
         <name>MIT License</name>

@@ -57,8 +57,12 @@ case class SNR(level: Double) extends Accuracy {
     val origSq = original.dotProduct(original)
     val diffSq = original.dotProduct(original.subtract(current))
 
-    val result = 10 * log10(origSq - diffSq)
-    result >= level
+    if (origSq.equals(diffSq)) {
+      false
+    } else {
+      val result = 10 * log10(origSq - diffSq)
+      result >= level
+    }
   }
 }
 
