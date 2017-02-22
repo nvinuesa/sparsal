@@ -1,19 +1,15 @@
 package dictionaries
 
+import org.apache.commons.math3.linear.{Array2DRowRealMatrix, RealMatrix, RealVector}
+
 import scala.math._
-import utils.Util._
 
-trait Dictionary[T] {
-
-  /**
-    * The basis function that defines the dictionary
-    */
-  def basis(u: Int, ω: Int, s: Int): Int => T
+trait Dictionary {
 
   /**
     * The dictionary of atoms
     */
-  val atoms: Seq[Seq[T]]
+  val atoms: RealMatrix
 }
 
 /**
@@ -23,37 +19,43 @@ trait Dictionary[T] {
   *
   * Since this dictionary creates all the possible atoms for a given input sequence, it is needed as a parameter.
   */
-class Gabor(xi: Seq[Double]) extends Dictionary[Double] {
+class Gabor(length: Int) extends Dictionary {
 
   /**
     * Constants needed to build the sampled dictionary
     */
-  private val N: Int = xi.length
+  private val N: Int = length
   private val a: Int = 2
   private val Δu: Double = 0.5
   private val Δξ: Double = Pi
+  private val matrix: RealMatrix = new Array2DRowRealMatrix(N, 4*N*(log(N)/log(2)).toInt)
 
-  override def basis(u: Int, ω: Int, s: Int): Int => Double =
+  private def basis(u: Int, ω: Int, s: Int): Int => Double =
     n => exp(-Pi * pow((n - u).toDouble / s.toDouble, 2)) * sin(2.0 * Pi * (ω.toDouble / N.toDouble) * (n - u).toDouble)
-
 
   /**
     * Dyadic sampling of the basis function to generate the dictionary
     */
-  override val atoms: Seq[Seq[Double]] =
+  override val atoms: RealMatrix = {
+
+    var i: Int = 0
     for {
-      j: Int <- 1 until floor(log(N) / log(2)).toInt
+      j: Int <- 1 until (log(N) / log(2)).toInt
       p: Int <- 0 until (N * pow(2, -j + 1)).toInt
-      k: Int <- 0 until pow(2, j + 1).toInt
+      k: Int <- 0 until (1 * pow(2, j + 1)).toInt
     } yield {
-      val helper =
-        for {
-          n: Int <- 0 until N
-        } yield {
-          basis((p * pow(a, j) * Δu).toInt, (k * pow(a, -j) * Δξ).toInt, pow(a, j).toInt)(n)
-        }
+      for {
+        n: Int <- 0 until N
+      } yield {
+        matrix.setEntry(n, i, basis((p * pow(a, j) * Δu).toInt, (k * pow(a, -j) * Δξ).toInt, pow(a, j).toInt)(n))
+      }
       // Each atom must have unit norm
-      helper map (x => if (pNorm[Double](helper, 2) == 0.0) 0.0 else x / pNorm[Double](helper, 2))
+      val col: RealVector = matrix.getColumnVector(i)
+      matrix.setColumnVector(i, col.mapMultiply(col.getNorm))
+      // Update index
+      i += 1
     }
+    matrix
+  }
 }
 

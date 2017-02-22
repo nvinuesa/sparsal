@@ -1,13 +1,13 @@
 package utils
 
-import scala.math.Numeric
+import org.apache.commons.math3.linear.RealVector
+
 import scala.math.log10
-import utils.Util._
 
 /**
   * Methods for assessing accuracy between estimated and original signals
   */
-trait Accuracy[T] {
+trait Accuracy {
 
   /**
     * The method to estimate if the desired level of accuracy is reached
@@ -16,7 +16,7 @@ trait Accuracy[T] {
     * @param original The original signal as reference
     * @return True if the desired level of accuracy is reached
     */
-  def estimate(current: Seq[T], original: Seq[T])(implicit num: Numeric[T]): Boolean
+  def estimate(current: RealVector, original: RealVector): Boolean
 }
 
 /**
@@ -43,7 +43,7 @@ case class MaxIter(n: Int) {
   *
   * @param level The desired signal-to-noise ratio (in dB)
   */
-case class SNR[A](level: Double) extends Accuracy[A] {
+case class SNR(level: Double) extends Accuracy {
 
   /**
     * The method to check if the desired level of signal-to-noise ratio (in dB) is reached
@@ -52,17 +52,21 @@ case class SNR[A](level: Double) extends Accuracy[A] {
     * @param original The original signal as reference
     * @return True if the desired level of accuracy is reached
     */
-  override def estimate(current: Seq[A], original: Seq[A])(implicit num: Numeric[A]): Boolean = {
+  override def estimate(current: RealVector, original: RealVector): Boolean = {
 
-    import num._
-    val origSq = dot(original map (x => toDouble(x)), original map (x => toDouble(x)))
-    val diffSq = dot(original map (x => toDouble(x)), subtraction(original map (x => toDouble(x)), current map (x => toDouble(x))))
-    val result = 10 * log10(origSq - diffSq)
-    result >= level
+    val origSq = original.dotProduct(original)
+    val diffSq = original.dotProduct(original.subtract(current))
+
+    if (origSq.equals(diffSq)) {
+      false
+    } else {
+      val result = 10 * log10(origSq - diffSq)
+      result >= level
+    }
   }
 }
 
-case class MSE[A](level: Double) extends Accuracy[A] {
+case class MSE[A](level: Double) extends Accuracy {
 
   /**
     * The method to estimate if the desired level of mean squared error (MSE) is reached
@@ -71,5 +75,5 @@ case class MSE[A](level: Double) extends Accuracy[A] {
     * @param original The original signal as reference
     * @return True if the desired level of accuracy is reached
     */
-  override def estimate(current: Seq[A], original: Seq[A])(implicit num: Numeric[A]): Boolean = ???
+  override def estimate(current: RealVector, original: RealVector): Boolean = ???
 }

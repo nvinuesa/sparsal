@@ -1,16 +1,16 @@
 package algorithms
 
-import algorithms.mp.MatchingPursuit1D
-import dictionaries.{Dictionary, Gabor}
+import algorithms.omp.OrthogonalMatchingPursuit1D
+import dictionaries.Dictionary
 import org.apache.commons.math3.linear.Array2DRowRealMatrix
 import org.mockito.Matchers._
-import org.mockito.Mockito._
-import org.scalactic.TolerantNumerics
 import org.scalatest.FunSuite
 import org.scalatest.mockito.MockitoSugar
-import utils._
+import org.mockito.Mockito._
+import org.scalactic.TolerantNumerics
+import utils.{Accuracy, SNR}
 
-class MatchingPursuitSuite extends FunSuite  with MockitoSugar {
+class OrthogonalMatchingPursuitSuite extends FunSuite with MockitoSugar {
 
   test ("Stop condition accuracy achieved should return the acc and residual") {
 
@@ -19,8 +19,8 @@ class MatchingPursuitSuite extends FunSuite  with MockitoSugar {
     when(accuracy.estimate(any(), any())).thenReturn(true)
     when(dict.atoms).thenReturn(new Array2DRowRealMatrix(1, 1))
 
-    val mp = MatchingPursuit1D(Vector.empty, dict)
-    val result: (List[(Double, Int)], Seq[Double]) = mp.run(accuracy)
+    val omp = OrthogonalMatchingPursuit1D(Vector.empty, dict)
+    val result: (List[(Double, Int)], Seq[Double]) = omp.run(accuracy)
 
     assert(result._1.isEmpty)
     assert(Vector.empty.equals(result._2))
@@ -31,11 +31,12 @@ class MatchingPursuitSuite extends FunSuite  with MockitoSugar {
     // One fake atom that is also used as input
     val atom: Array[Double] = Array.fill(10)(5)
 
+    val accuracy = mock[Accuracy]
     val dict = mock[Dictionary]
     when(dict.atoms).thenReturn(new Array2DRowRealMatrix(atom))
 
-    val mp = MatchingPursuit1D(atom, dict)
-    val result: (List[(Double, Int)], Seq[Double]) = mp.run(SNR(20.0))
+    val omp = OrthogonalMatchingPursuit1D(atom, dict)
+    val result: (List[(Double, Int)], Seq[Double]) = omp.run(accuracy)
 
     // The expected output:
     val expected: List[(Double, Int)] = List((1.0, 0))
@@ -46,7 +47,7 @@ class MatchingPursuitSuite extends FunSuite  with MockitoSugar {
     assert(result._2.sum === 0.0)
   }
 
-  test ("MP should converge, input made out of two atoms") {
+  test ("OMP should converge, input made out of two atoms") {
 
     // Fake atoms that are also used as input
     val atom1: Array[Double] = Array.fill(10)(5)
@@ -57,8 +58,8 @@ class MatchingPursuitSuite extends FunSuite  with MockitoSugar {
     val dict = mock[Dictionary]
     when(dict.atoms).thenReturn(new Array2DRowRealMatrix(atoms).transpose())
 
-    val mp = MatchingPursuit1D(input, dict)
-    val result: (List[(Double, Int)], Seq[Double]) = mp.run(SNR(24.0))
+    val omp = OrthogonalMatchingPursuit1D(input, dict)
+    val result: (List[(Double, Int)], Seq[Double]) = omp.run(SNR(30.0))
 
     assert(2.equals(result._1.length))
     // Check that both atoms where chosen from the dictionary
@@ -67,24 +68,5 @@ class MatchingPursuitSuite extends FunSuite  with MockitoSugar {
     val epsilon = 1e-4f
     implicit val doubleEq = TolerantNumerics.tolerantDoubleEquality(epsilon)
     assert(result._2.sum === 0.0)
-  }
-
-
-  test("Sparse decomposition of sine wave") {
-    val orig: Seq[Double] = sine(1000, 1, 48000, 64)
-    val dict = new Gabor(orig.size)
-    val a = MatchingPursuit1D(orig, dict)
-    val snr = SNR(4.0)
-    val b = a.run(snr)
-
-    assert(b._2.length == orig.length)
-  }
-
-  def sine(f: Double, amp: Double, samplef: Double, samples: Int): IndexedSeq[Double] = {
-    val wavePeriod = 1 / f
-    val samplePeriod = 1 / samplef
-    val dTheta = (samplePeriod / wavePeriod) * 2 * math.Pi
-
-    (0 until samples).map(n => math.sin(dTheta * n) * amp)
   }
 }
