@@ -22,7 +22,7 @@ Builds are available for Scala 2.11.8+ and 2.12.x.
 
 Simply add sparsal's dependency to your build.sbt:
 ```scala
-libraryDependencies += "com.github.underscorenico" % "sparsal_2.12" % "0.1.0"
+libraryDependencies += "com.github.underscorenico" % "sparsal_2.12" % "0.2.0"
 ```
 
 ### Maven
@@ -32,7 +32,7 @@ If you are using Maven, simply add sparsal to your dependencies to your pom.xml:
 <dependency>
     <groupId>com.github.underscorenico</groupId>
     <artifactId>sparsal_2.12</artifactId>
-    <version>0.1.0</version>
+    <version>0.2.0</version>
 </dependency>
 ```
 
