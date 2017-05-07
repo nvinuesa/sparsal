@@ -11,12 +11,15 @@
 The Sparse Approximation Library aims to provide easy-to-read, modern and maintainable sparse approximation algorithms written in a functional style.
 <br>
 At the moment only [the matching pursuit algorithm][mp] is implemented. Future versions will increment the number of algorithms.
+<br>
+Check [this article][blog] for some basic theoretical background.
 
+[blog]: https://underscorenico.github.io/blog/2017/01/14/about-sparsal
 [mp]: https://en.wikipedia.org/wiki/Matching_pursuit
 
 ## Using sparsal
 
-Builds are available for Scala 2.11.8+ and 2.12.x.
+Builds are available for Scala 2.12.x.
 
 ### SBT
 
@@ -36,13 +39,13 @@ If you are using Maven, simply add sparsal to your dependencies to your pom.xml:
 </dependency>
 ```
 
-## Contributing 
+## Contributing
 
 Everyone is welcome to contribute, either by adding features, solving bugs or helping with documentation.
 <br>
 Sparsal embraces [the open code of conduct][codeofconduct] from the [TODO group][todogroup], therefore all of its channels should respect its guidelines.
 <br>
-That being said, we are a community and we shouldn't need guidelines for our conduct but leave it to our common sense instead.
+That being said, we are a community and we should not need guidelines for our conduct but leave it to our common sense instead.
 
 [codeofconduct]: http://todogroup.org/opencodeofconduct
 [todogroup]: http://todogroup.org
