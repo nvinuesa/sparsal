@@ -19,11 +19,15 @@ Check [this article][blog] for some basic theoretical background.
 
 ## Using sparsal
 
-Builds are available for Scala 2.12.x.
+Builds are available for scala 2.10.x, 2.11.x and 2.12.2.
 
 ### SBT
 
-Simply add sparsal's dependency to your build.sbt:
+Simply add sparsal's dependency to your build.sbt if you don't know which version of scala you are using and sbt will automatically detect and search for the appropriate package:
+```scala
+libraryDependencies += "com.github.underscorenico" %% "sparsal" % "0.2.0"
+```
+Or either specify the desired target version:
 ```scala
 libraryDependencies += "com.github.underscorenico" % "sparsal_2.12" % "0.2.0"
 ```
@@ -38,6 +42,23 @@ If you are using Maven, simply add sparsal to your dependencies to your pom.xml:
     <version>0.2.0</version>
 </dependency>
 ```
+### Try it
+
+First initialize your MatchingPursuit (or Orthogonal Matching Pursuit) object with an input and a defined dictionary:
+```scala
+val input = Array.fill(10)(5)
+
+val dictionary = Gabor(input.length)
+
+val mp =  MatchingPursuit1D(input, dictionary)
+```
+Then recover the approximation (after the algorithm converges to a certain provided accuracy measure):
+```scala
+    val result: (List[(Double, Int)], Seq[Double]) = mp.run(SNR(20.0))
+```
+The result will contain a list of selected atoms from the dictionary. The first element of the touple (type Double) will contain the inner product between the input at Iteration n-1 and the selected atom. 
+<br>
+The second element contains the index of the atom from the dictionary.
 
 ## Contributing
 

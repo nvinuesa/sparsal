@@ -4,7 +4,11 @@ name := "sparsal"
 
 version := "0.2.0"
 
-scalaVersion := "2.12.1"
+scalaVersion := "2.12.2"
+
+crossScalaVersions := Seq(
+  "2.10.6", "2.11.9"
+)
 
 libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % "3.0.1" % "test",
